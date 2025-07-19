@@ -1,5 +1,8 @@
 // build.gradle.kts for your orion_flutter Android library module
 
+// All imports should be at the very top of the file
+import org.gradle.api.tasks.testing.Test
+
 plugins {
     id("com.android.library")
     kotlin("android")
@@ -26,12 +29,11 @@ allprojects {
 
 android {
     namespace = "co.epsilondelta.orion_flutter"
-    // IMPORTANT CHANGE: Downgrade compileSdk to 34 to match the client app
-    compileSdk = 34
+    compileSdk = 34 // IMPORTANT: Downgraded to 34 to match client app
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 34 // Keep targetSdk at 34 as it aligns with the client app's compileSdk
+        targetSdk = 34
     }
 
     buildFeatures {
@@ -45,8 +47,10 @@ android {
 
     testOptions {
         unitTests.all {
-            // Keep this block, but it's typically empty or used for other test configurations
-            // as 'enabled = false' is handled by the tasks.withType<Test> block below.
+            // This block is for Android-specific unit test configurations.
+            // Leaving it empty if you only want to disable the test task.
+            // If you need to include Android resources for tests (even if disabled),
+            // you might set: includeAndroidResources = false
         }
     }
 
@@ -59,27 +63,27 @@ android {
         implementation("com.squareup.okhttp3:okhttp:4.12.0")
         implementation("org.json:json:20231013")
 
-        // IMPORTANT CHANGES: Downgrade AndroidX Activity dependencies
+        // IMPORTANT: Downgraded AndroidX Activity dependencies
         // to versions compatible with compileSdk 34.
-        // Version 1.9.0 of Activity seems to be the last one fully targeting API 34.
         implementation("androidx.activity:activity-ktx:1.9.0")
         implementation("androidx.activity:activity:1.9.0")
 
-        // You might also need to explicitly add core-ktx if it was implicitly pulled in by 1.10.1
-        // and is now missing or needs a specific compatible version for compileSdk 34.
-        // A common version for compileSdk 34 is 1.12.0 or 1.10.1 for older Flutter versions.
-        // Let's assume 1.12.0 for now, but if you get more errors related to core-ktx,
-        // you might need to adjust this.
+        // Explicitly adding core-ktx for compileSdk 34 compatibility
         implementation("androidx.core:core-ktx:1.12.0")
     }
 }
 
-import org.gradle.api.tasks.testing.Test
-
+// THIS BLOCK MUST BE AT THE TOP-LEVEL SCOPE OF THE SCRIPT
+// It configures all tasks of type Test (which includes unit tests)
 tasks.withType<Test>().configureEach {
-    enabled = false // This explicitly disables any task of type Test
+    enabled = false // Explicitly disables any task of type Test
 }
 
+
+// This `repositories` block at the root level of the script is generally
+// not strictly needed for a library module if `allprojects` is already defined
+// or if the root project's `settings.gradle.kts` handles repositories.
+// However, it doesn't cause harm.
 repositories {
     google()
     mavenCentral()

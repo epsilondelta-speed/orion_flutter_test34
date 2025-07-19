@@ -28,17 +28,20 @@ allprojects {
 }
 
 // IMPORTANT: Define versions centrally for easier management
-val compileSdkVersion = 34
-val targetSdkVersion = 34
+// Explicitly cast to Int for compileSdk to avoid any String? inference issues.
+val compileSdkVersion: Int = 34
+val targetSdkVersion: Int = 34
 val activityKtxVersion = "1.9.0" // Confirmed to be compatible with API 34
 val coreKtxVersion = "1.12.0"   // Confirmed compatible with API 34
+val lifecycleRuntimeKtxVersion = "2.6.1" // Compatible with API 34
 
 android {
     namespace = "co.epsilondelta.orion_flutter"
+    // Direct assignment of Int variable
     compileSdk = compileSdkVersion
 
     defaultConfig {
-        minSdk = 23
+        minSdk = 21
         targetSdk = targetSdkVersion
     }
 
@@ -67,15 +70,10 @@ android {
         implementation("org.json:json:20231013")
 
         // Explicitly include the older, compatible AndroidX Activity dependencies.
-        // Even if other dependencies pull in newer versions, the 'force' rule below should override.
         implementation("androidx.activity:activity-ktx:$activityKtxVersion")
         implementation("androidx.activity:activity:$activityKtxVersion")
         implementation("androidx.core:core-ktx:$coreKtxVersion")
-
-        // It might be useful to explicitly add lifecycle-runtime-ktx as well,
-        // as activity often depends on it and sometimes it's an issue source.
-        // Lifecycle 2.6.1 is compatible with API 34.
-        implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+        implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion")
     }
 }
 
@@ -88,7 +86,7 @@ configurations.all {
         force("androidx.activity:activity:$activityKtxVersion")
         force("androidx.activity:activity-ktx:$activityKtxVersion")
         force("androidx.core:core-ktx:$coreKtxVersion")
-        force("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1") // Force this too
+        force("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion")
 
         // Optionally, add this to make Gradle fail immediately on conflict,
         // which can sometimes give clearer error messages about *why* a conflict happened.
